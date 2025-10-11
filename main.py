@@ -8,21 +8,6 @@ type PlayerSign = Literal["X", "O"]
 type BoardEmoji = Literal["❌", "⭕", "⬜"]
 
 
-class Player:
-    sign: PlayerSign
-    emoji: BoardEmoji
-
-    def __init__(self, sign):
-        self.sign = sign
-        if sign == "x":
-            self.emoji = "❌"
-            return
-        self.emoji = "⭕"
-
-    def __repr__(self):
-        return self.emoji
-
-
 class Board:
     b: list[list[None | PlayerSign]] = [
         [None, None, None],
@@ -30,7 +15,7 @@ class Board:
         [None, None, None],
     ]
 
-    def add_move(self, turn: PlayerSign, coords: tuple[int, int]):
+    def mark(self, turn: PlayerSign, coords: tuple[int, int]):
         col, row = coords
         self.b[row][col] = turn
 
@@ -93,8 +78,20 @@ move_map: dict[str, int] = {
 # fmt: on
 
 
-def is_game_over():
-    # TODO:
+def is_game_over(p: PlayerSign, board: Board) -> bool | None:
+    """
+    Returns:
+        - `True` if player `p` won the game
+        - `False` if the game is not over
+        - `None` if it's a draw
+    """
+    # check for win across rows
+    for row in board.b:
+        if row[0] == row[1] == row[2] == p:
+            return True
+    # TODO: check across cols
+    # TODO: check across diags
+    # TODO: check for draw -- all cells filled? (or all but 1 or 2?)
     return False
 
 
@@ -109,7 +106,7 @@ def main():
     # the current player
     player_turn: PlayerSign = X
 
-    while not is_game_over():
+    while True:
         # wait for a valid move to be applied
         while True:
             print("Make your move.")
@@ -122,12 +119,17 @@ def main():
             if not board.is_move_available(coords):
                 print("⚠️ Move is unavailable. Try again!")
                 continue
-            board.add_move(player_turn, coords)
+            board.mark(player_turn, coords)
             break
 
         board.print()
+
+        # TODO: check if game over
+        if is_game_over(player_turn, board):
+            break
         player_turn = X if player_turn == O else O
 
+    print("GAME ENDED. WINNER: ", player_turn)
 
 
 if __name__ == "__main__":
