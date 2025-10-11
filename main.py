@@ -34,6 +34,10 @@ class Board:
         col, row = coords
         self.b[row][col] = turn
 
+    def is_move_available(self, coord) -> bool:
+        y, x = coord
+        return not bool(self.b[x][y])
+
     emoji_map: dict[PlayerSign | None, BoardEmoji] = {
         X: "❌",
         O: "⭕",
@@ -65,12 +69,11 @@ rules = """
 ⇢ Enter coordinates as [X, Y] or [column, row]. For example, to make your move at column 3, row 2, enter 'C2'.
 
 ⇢ Case does not matter.
-"""
+
+Capisce? Press enter to play!"""
 
 
 def is_input_valid(inp: str) -> bool:
-    # TODO: check if move is available
-    inp = inp.strip()
     if len(inp) != 2:
         return False
     if inp[0] not in ("A", "B", "C", "a", "b", "c"):
@@ -97,28 +100,34 @@ def is_game_over():
 
 def main():
     # wait for user to confirm understanding of rules
-    print(rules)
-    while True:
-        if input("Capisce? Press enter to play!") == "":
-            break
+    print(rules, end="")
+    _ = input()
 
     board = Board()
     board.print()
 
+    # the current player
     player_turn: PlayerSign = X
 
     while not is_game_over():
-        # wait for a valid move to be entered
-        move = ""
+        # wait for a valid move to be applied
         while True:
-            move = input(f"Make a move (e.g. B3).\n{player_turn} at: ").strip()
-            if is_input_valid(move):
-                break
+            print("Make your move.")
+            move = input(f"Mark {player_turn} at: ").strip()
+            if not is_input_valid(move):
+                # TODO: help message?
+                continue
+            col, row = move
+            coords = (move_map[col], move_map[row])
+            if not board.is_move_available(coords):
+                print("⚠️ Move is unavailable. Try again!")
+                continue
+            board.add_move(player_turn, coords)
+            break
 
-        col, row = move
-        board.add_move(player_turn, coords=(move_map[col], move_map[row]))
         board.print()
         player_turn = X if player_turn == O else O
+
 
 
 if __name__ == "__main__":
