@@ -1,13 +1,16 @@
 from typing import Literal
 
+X = "X"
+O = "O"
+
 type PlayerSign = Literal["X", "O"]
 
-type PlayerEmoji = Literal["❌", "⭕"]
+type BoardEmoji = Literal["❌", "⭕", "⬜"]
 
 
 class Player:
     sign: PlayerSign
-    emoji: PlayerEmoji
+    emoji: BoardEmoji
 
     def __init__(self, sign):
         self.sign = sign
@@ -20,33 +23,39 @@ class Player:
         return self.emoji
 
 
-type EmptyEmoji = Literal["⬜"]
-
-
 class Board:
-    empty: EmptyEmoji = "⬜"
-
-    b: list[list[EmptyEmoji | PlayerEmoji]] = [
-        [empty, empty, empty],
-        [empty, empty, empty],
-        [empty, empty, empty],
+    b: list[list[None | PlayerSign]] = [
+        [None, None, None],
+        [None, None, None],
+        [None, None, None],
     ]
 
     def add_move(self, turn: PlayerSign, coords: tuple[int, int]):
         col, row = coords
-        self.b[row][col] = sign_map[turn]
+        self.b[row][col] = turn
+
+    emoji_map: dict[PlayerSign | None, BoardEmoji] = {
+        X: "❌",
+        O: "⭕",
+        None: "⬜",
+    }
 
     def print(self):
-        b = self.b
+        p: list[list[None | BoardEmoji]] = [
+            [None, None, None],
+            [None, None, None],
+            [None, None, None],
+        ]
+        for y in range(3):
+            for x in range(3):
+                p[y][x] = self.emoji_map[self.b[y][x]]
         print()
         print("  A  B  C")
-        print("1", b[0][0], b[0][1], b[0][2])
-        print("2", b[1][0], b[1][1], b[1][2])
-        print("3", b[2][0], b[2][1], b[2][2])
+        print("1", p[0][0], p[0][1], p[0][2])
+        print("2", p[1][0], p[1][1], p[1][2])
+        print("3", p[2][0], p[2][1], p[2][2])
         print()
 
-
-player_turn: PlayerSign = "X"
 
 rules = """
 [ Rules ]
@@ -59,7 +68,8 @@ rules = """
 """
 
 
-def isInputValid(inp: str) -> bool:
+def is_input_valid(inp: str) -> bool:
+    # TODO: check if move is available
     inp = inp.strip()
     if len(inp) != 2:
         return False
@@ -79,10 +89,10 @@ move_map: dict[str, int] = {
 }
 # fmt: on
 
-sign_map: dict[PlayerSign, PlayerEmoji] = {
-    "X": "❌",
-    "O": "⭕",
-}
+
+def is_game_over():
+    # TODO:
+    return False
 
 
 def main():
@@ -95,16 +105,20 @@ def main():
     board = Board()
     board.print()
 
-    # wait for valid input
-    move: str
-    while True:
-        move = input(f"Make a move (e.g. B3).\n{player_turn} at: ")
-        if isInputValid(move):
-            break
+    player_turn: PlayerSign = X
 
-    col, row = move
-    board.add_move(player_turn, coords=(move_map[col], move_map[row]))
-    board.print()
+    while not is_game_over():
+        # wait for a valid move to be entered
+        move = ""
+        while True:
+            move = input(f"Make a move (e.g. B3).\n{player_turn} at: ").strip()
+            if is_input_valid(move):
+                break
+
+        col, row = move
+        board.add_move(player_turn, coords=(move_map[col], move_map[row]))
+        board.print()
+        player_turn = X if player_turn == O else O
 
 
 if __name__ == "__main__":
