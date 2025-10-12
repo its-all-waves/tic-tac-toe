@@ -15,25 +15,6 @@ class TestIsGameOver(unittest.TestCase):
         # X goes 1st
         game_is_over = is_game_over(X, board)
         self.assertFalse(game_is_over)
-        
-    def test_X_or_O_wins(self):
-        board = Board()
-        board.b = [
-            [X, X, X],
-            [_, O, O],
-            [_, _, _],
-        ]
-        x_won = is_game_over(X, board)
-        self.assertTrue(x_won)
-
-        board = Board()
-        board.b = [
-            [_, O, _],
-            [X, O, X],
-            [X, O, _],
-        ]
-        o_won = is_game_over(O, board)
-        self.assertTrue(o_won)
 
     def test_game_not_over(self):
         board = Board()
@@ -54,36 +35,24 @@ class TestIsGameOver(unittest.TestCase):
         o_won = is_game_over(O, board)
         self.assertFalse(o_won)
 
-    def test_tied_board_full(self):
+    def test_X_or_O_wins(self):
         board = Board()
         board.b = [
-            [O, X, O],
-            [X, O, X],
-            [X, O, X],
+            [X, X, X],
+            [_, O, O],
+            [_, _, _],
         ]
         x_won = is_game_over(X, board)
-        self.assertIsNone(x_won)
-
-    def test_tied_board_not_full(self):
-        board = Board()
-        board.b = [
-            [X, O, O],
-            [O, _, X],
-            [X, X, O],
-        ]
-        # O just played, next move (X's) will result in a tie
-        o_won = is_game_over(O, board)
-        self.assertIsNone(o_won)
+        self.assertTrue(x_won)
 
         board = Board()
         board.b = [
-            [X, _, O],
-            [O, O, X],
+            [_, O, _],
             [X, O, X],
+            [X, O, _],
         ]
-        # O just played, next move (X's) will result in a tie
         o_won = is_game_over(O, board)
-        self.assertIsNone(o_won)
+        self.assertTrue(o_won)
 
     def test_detects_win_in_rows(self):
         board = Board()
@@ -161,6 +130,36 @@ class TestIsGameOver(unittest.TestCase):
         o_won = is_game_over(O, board)
         self.assertTrue(o_won)
 
+    def test_tied_board_full(self):
+        board = Board()
+        board.b = [
+            [O, X, O],
+            [X, O, X],
+            [X, O, X],
+        ]
+        x_won = is_game_over(X, board)
+        self.assertIsNone(x_won)
+
+    def test_tied_board_not_full(self):
+        board = Board()
+        board.b = [
+            [X, O, O],
+            [O, _, X],
+            [X, X, O],
+        ]
+        # O just played, next move (X's) will result in a tie
+        o_won = is_game_over(O, board)
+        self.assertIsNone(o_won)
+
+        board = Board()
+        board.b = [
+            [X, _, O],
+            [O, O, X],
+            [X, O, X],
+        ]
+        # O just played, next move (X's) will result in a tie
+        o_won = is_game_over(O, board)
+        self.assertIsNone(o_won)
 
 if __name__ == "__main__":
     unittest.main()
