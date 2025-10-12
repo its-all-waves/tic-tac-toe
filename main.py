@@ -9,6 +9,12 @@ type PlayerSign = Literal["X", "O"]
 
 type BoardEmoji = Literal["❌", "⭕", "⬜"]
 
+PLAYER_EMOJI_MAP: dict[PlayerSign | None, BoardEmoji] = {
+    X: "❌",
+    O: "⭕",
+    None: "⬜",
+}
+
 
 class Board:
     b: list[list[None | PlayerSign]]
@@ -28,12 +34,6 @@ class Board:
         j, i = coord
         return not bool(self.b[i][j])
 
-    emoji_map: dict[PlayerSign | None, BoardEmoji] = {
-        X: "❌",
-        O: "⭕",
-        None: "⬜",
-    }
-
     def print(self):
         p: list[list[None | BoardEmoji]] = [
             [None, None, None],
@@ -42,7 +42,7 @@ class Board:
         ]
         for y in range(3):
             for x in range(3):
-                p[y][x] = self.emoji_map[self.b[y][x]]
+                p[y][x] = PLAYER_EMOJI_MAP[self.b[y][x]]
         print()
         print("  A  B  C")
         print("1", p[0][0], p[0][1], p[0][2])
@@ -52,13 +52,14 @@ class Board:
 
 
 rules = """
-[ Rules ]
+❌ Tic Tac Toe ⭕
 
-⇢ X goes first.
+📏 RULES 📐
 
-⇢ Enter coordinates as [X, Y] or [column, row]. For example, to make your move at column 3, row 2, enter 'C2'.
+❌ goes first.
 
-⇢ Case does not matter.
+📍 Enter coordinates as [X, Y] or [column, row] to make your move.
+   For example, to make your move at column 3, row 2, enter 'C2' or 'c2'. '2C'.
 
 Capisce? Press enter to play!"""
 
@@ -75,7 +76,7 @@ def is_input_valid(inp: str) -> bool:
 
 # fmt: off
 # map user-entered coord to board index
-move_map: dict[str, int] = {
+MOVE_MAP: dict[str, int] = {
     "A": 0, "B": 1, "C": 2,
     "a": 0, "b": 1, "c": 2,
     "1": 0, "2": 1, "3": 2,
@@ -163,13 +164,12 @@ def main():
     while True:
         # wait for a valid move to be applied
         while True:
-            print("Make your move.")
-            move = input(f"Mark {curr_player} at: ").strip()
+            move = input(f"Mark {PLAYER_EMOJI_MAP[curr_player]} at: ").strip()
             if not is_input_valid(move):
                 # TODO: help message?
                 continue
             col, row = move
-            coords = (move_map[col], move_map[row])
+            coords = (MOVE_MAP[col], MOVE_MAP[row])
             if not board.is_move_available(coords):
                 print("⚠️ Move is unavailable. Try again!")
                 continue
