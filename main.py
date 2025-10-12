@@ -11,11 +11,14 @@ type BoardEmoji = Literal["❌", "⭕", "⬜"]
 
 
 class Board:
-    b: list[list[None | PlayerSign]] = [
-        [None, None, None],
-        [None, None, None],
-        [None, None, None],
-    ]
+    b: list[list[None | PlayerSign]]
+
+    def __init__(self):
+        self.b = [
+            [None, None, None],
+            [None, None, None],
+            [None, None, None],
+        ]
 
     def mark(self, turn: PlayerSign, coords: tuple[int, int]):
         j, i = coords
