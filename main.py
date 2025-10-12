@@ -52,16 +52,20 @@ class Board:
 
 
 rules = """
-❌ Tic Tac Toe ⭕
+❌❌❌ Tic Tac Toe ⭕⭕⭕
 
 📏 RULES 📐
 
 ❌ goes first.
 
 📍 Enter coordinates as [X, Y] or [column, row] to make your move.
-   For example, to make your move at column 3, row 2, enter 'C2' or 'c2'. '2C'.
+   For example, to make your move at column 3, row 2, enter "C2" or "c2".
+   "2C" won't work.
 
-Capisce? Press enter to play!"""
+🚪 To quit once the game is going, type "exit" or "quit."
+   (If you're a Vim user, you know what to do.)
+
+🐟 Capisce? Press enter to play!"""
 
 
 def is_input_valid(inp: str) -> bool:
@@ -157,7 +161,6 @@ def main():
     board = Board()
     board.print()
 
-    # the current player
     curr_player: PlayerSign = X
     winner: None | PlayerSign = None
 
@@ -165,13 +168,17 @@ def main():
         # wait for a valid move to be applied
         while True:
             move = input(f"Mark {PLAYER_EMOJI_MAP[curr_player]} at: ").strip()
+            if move in ("exit", "EXIT", "quit", "QUIT", ":q"):
+                print("So that's how it is... Ok... I see... Bye Felicia! 👋🏼")
+                time.sleep(1.5)
+                exit()
             if not is_input_valid(move):
-                # TODO: help message?
+                print("⚠️ Try again. Your move should look like this: B1 (letter, number)\n")
                 continue
             col, row = move
             coords = (MOVE_MAP[col], MOVE_MAP[row])
             if not board.is_move_available(coords):
-                print("⚠️ Move is unavailable. Try again!")
+                print("⚠️ Move is unavailable. Try again!\n")
                 continue
             board.mark(curr_player, coords)
             break
@@ -187,7 +194,29 @@ def main():
 
         curr_player = X if curr_player == O else O
 
-    print(f"{winner} WON!" if winner else "IT'S A DRAW!")
+    print("GAME OVER!\n")
+    time.sleep(1.5)
+    print("🥁 And the winner is... 🥁\n")
+    time.sleep(1.5)
+
+    if winner:
+        loser = X if winner == O else O
+        print(f"🎉 🍻   {PLAYER_EMOJI_MAP[winner]}   🥳 🍾\n")
+        time.sleep(1)
+        print(f"🙌 Niiiice. Good job {PLAYER_EMOJI_MAP[winner]}! 💪")
+        time.sleep(1)
+        print(f"👎 {PLAYER_EMOJI_MAP[loser]}, how the heck do you lose at Tic Tac Toe?")
+        time.sleep(1)
+        print("Seriously, you must be dense... 👎")
+        time.sleep(1)
+        print("Thanks for playing! Goodbye! 👋🏼\n")
+        time.sleep(1)
+        return
+
+    print("No one. No won won. Wait... No one... won. Whatever.\n")
+    time.sleep(2)
+    print("...so lame. Bye! 👋🏼\n")
+    time.sleep(2)
 
 
 if __name__ == "__main__":
