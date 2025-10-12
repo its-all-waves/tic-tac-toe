@@ -18,12 +18,12 @@ class Board:
     ]
 
     def mark(self, turn: PlayerSign, coords: tuple[int, int]):
-        col, row = coords
-        self.b[row][col] = turn
+        j, i = coords
+        self.b[i][j] = turn
 
     def is_move_available(self, coord) -> bool:
-        y, x = coord
-        return not bool(self.b[x][y])
+        j, i = coord
+        return not bool(self.b[i][j])
 
     emoji_map: dict[PlayerSign | None, BoardEmoji] = {
         X: "❌",
