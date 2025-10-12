@@ -1,3 +1,4 @@
+import time
 from typing import Literal
 
 X = "X"
@@ -78,20 +79,49 @@ move_map: dict[str, int] = {
 # fmt: on
 
 
-def is_game_over(p: PlayerSign, board: Board) -> bool | None:
+def is_game_over(curr_player: PlayerSign, board: Board) -> bool | None:
     """
     Returns:
-        - `True` if player `p` won the game
+        - `True` if `curr_player` won the game
         - `False` if the game is not over
         - `None` if it's a draw
     """
     # check for win across rows
     for row in board.b:
-        if row[0] == row[1] == row[2] == p:
+        if row[0] == row[1] == row[2] == curr_player:
             return True
-    # TODO: check across cols
-    # TODO: check across diags
-    # TODO: check for draw -- all cells filled? (or all but 1 or 2?)
+
+    # check for win across cols
+    for j in range(3):
+        if board.b[0][j] == board.b[1][j] == board.b[2][j] == curr_player:
+            return True
+
+    # check for win across diags
+    if (
+        board.b[0][0] == board.b[1][1] == board.b[2][2] == curr_player
+        or board.b[2][0] == board.b[1][1] == board.b[0][2] == curr_player
+    ):
+        return True
+
+    # TODO: check for draw:
+    # If there's one remaining move (one empty cell), simulate the next
+    # player's move (recurse).
+    # If the next player's move returns...
+    #     - true: game is technically over, other player will win, but let
+    #         them because it's more satisfying to see the winning move made
+    #     - none: game is a draw, return none, ending the game
+    #     - false: impossible to return false in this scenario
+
+    # check for draw -- simple version: all cells filled
+    is_board_full = True
+    for i in range(3):
+        for j in range(3):
+            if board.b[i][j] is None:
+                is_board_full = False
+                break
+    if is_board_full:
+        return None
+
     return False
 
 
@@ -104,13 +134,14 @@ def main():
     board.print()
 
     # the current player
-    player_turn: PlayerSign = X
+    curr_player: PlayerSign = X
+    winner: None | PlayerSign = None
 
     while True:
         # wait for a valid move to be applied
         while True:
             print("Make your move.")
-            move = input(f"Mark {player_turn} at: ").strip()
+            move = input(f"Mark {curr_player} at: ").strip()
             if not is_input_valid(move):
                 # TODO: help message?
                 continue
@@ -119,17 +150,21 @@ def main():
             if not board.is_move_available(coords):
                 print("⚠️ Move is unavailable. Try again!")
                 continue
-            board.mark(player_turn, coords)
+            board.mark(curr_player, coords)
             break
 
         board.print()
 
-        # TODO: check if game over
-        if is_game_over(player_turn, board):
+        curr_player_won = is_game_over(curr_player, board)
+        if curr_player_won == True:
+            winner = curr_player
             break
-        player_turn = X if player_turn == O else O
+        if curr_player_won == None:
+            break
 
-    print("GAME ENDED. WINNER: ", player_turn)
+        curr_player = X if curr_player == O else O
+
+    print(f"{winner} WON!" if winner else "IT'S A DRAW!")
 
 
 if __name__ == "__main__":
