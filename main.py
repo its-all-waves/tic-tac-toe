@@ -1,4 +1,5 @@
 import time
+import copy
 from typing import Literal
 
 X = "X"
@@ -84,7 +85,7 @@ def is_game_over(curr_player: PlayerSign, board: Board) -> bool | None:
     Returns:
         - `True` if `curr_player` won the game
         - `False` if the game is not over
-        - `None` if it's a draw
+        - `None` if it's a tie
     """
     # check for win across rows
     for row in board.b:
@@ -103,24 +104,43 @@ def is_game_over(curr_player: PlayerSign, board: Board) -> bool | None:
     ):
         return True
 
-    # TODO: check for draw:
-    # If there's one remaining move (one empty cell), simulate the next
-    # player's move (recurse).
-    # If the next player's move returns...
-    #     - true: game is technically over, other player will win, but let
-    #         them because it's more satisfying to see the winning move made
-    #     - none: game is a draw, return none, ending the game
-    #     - false: impossible to return false in this scenario
+    # It's possible to detect a tie or win before the last move is made.
+    # e.g. tie - X's turn, X cannot win, only possible move results in a draw
+    #
+    #     X  O  O
+    #     O  _  X
+    #     X  X  O
+    #
+    # e.g. win - X's turn, only possible move is a win
+    #
+    #     X  O  O
+    #     O  X  X
+    #     X  O  _  <- X wins
 
-    # check for draw -- simple version: all cells filled
+    # check for tie
     is_board_full = True
+    empty_cells: list[tuple[int, int]] = []
     for i in range(3):
         for j in range(3):
             if board.b[i][j] is None:
                 is_board_full = False
-                break
+                empty_cells.append((i, j))
     if is_board_full:
         return None
+
+    if len(empty_cells) == 1:
+        # predict tie from next (final) move
+        next_player = X if curr_player == O else O
+        board_copy = copy.deepcopy(board)
+        i, j = empty_cells[0]
+        board_copy.b[i][j] = next_player
+        will_next_player_win = is_game_over(next_player, board_copy)
+        if will_next_player_win:
+            # let them make the winning move -- more fun/satisfying
+            return False
+        if will_next_player_win is None:
+            # next move will fill the board and not win the game, thus it's a tie
+            return None
 
     return False
 
@@ -156,10 +176,10 @@ def main():
         board.print()
 
         curr_player_won = is_game_over(curr_player, board)
-        if curr_player_won == True:
+        if curr_player_won:
             winner = curr_player
             break
-        if curr_player_won == None:
+        if curr_player_won is None:
             break
 
         curr_player = X if curr_player == O else O
