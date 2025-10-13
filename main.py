@@ -40,14 +40,14 @@ class Board:
             [None, None, None],
             [None, None, None],
         ]
-        for y in range(3):
-            for x in range(3):
-                p[y][x] = PLAYER_EMOJI_MAP[self.b[y][x]]
+        for i in range(3):
+            for j in range(3):
+                p[i][j] = PLAYER_EMOJI_MAP[self.b[i][j]]
         print()
         print("  A  B  C")
-        print("1", p[0][0], p[0][1], p[0][2])
-        print("2", p[1][0], p[1][1], p[1][2])
-        print("3", p[2][0], p[2][1], p[2][2])
+        print("1", *p[0])
+        print("2", *p[1])
+        print("3", *p[2])
         print()
 
 
