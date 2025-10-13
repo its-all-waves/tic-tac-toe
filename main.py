@@ -62,7 +62,7 @@ RULES = """
    For example, to make your move at column 3, row 2, enter "C2" or "c2".
    "2C" won't work.
 
-🚪 To quit once the game is going, type "exit" or "quit."
+🚪 To quit once the game is going, type "exit" or "quit".
    (If you're a Vim user, you know what to do.)
 
 🐟 Capisce? Press enter to play!"""
