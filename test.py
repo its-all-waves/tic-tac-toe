@@ -70,8 +70,8 @@ class TestIsGameOver(unittest.TestCase):
             [O, O, O],
             [X, _, X],
         ]
-        result = is_game_over(O, board)
-        self.assertTrue(result)
+        o_won = is_game_over(O, board)
+        self.assertTrue(o_won)
 
         board = Board()
         board.b = [

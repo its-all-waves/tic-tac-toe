@@ -51,7 +51,7 @@ class Board:
         print()
 
 
-rules = """
+RULES = """
 ❌❌❌ Tic Tac Toe ⭕⭕⭕
 
 📏 RULES 📐
@@ -68,16 +68,6 @@ rules = """
 🐟 Capisce? Press enter to play!"""
 
 
-def is_input_valid(inp: str) -> bool:
-    if len(inp) != 2:
-        return False
-    if inp[0] not in ("A", "B", "C", "a", "b", "c"):
-        return False
-    if inp[1] not in ("1", "2", "3"):
-        return False
-    return True
-
-
 # fmt: off
 # map user-entered coord to board index
 MOVE_MAP: dict[str, int] = {
@@ -86,6 +76,17 @@ MOVE_MAP: dict[str, int] = {
     "1": 0, "2": 1, "3": 2,
 }
 # fmt: on
+
+
+def is_input_valid(inp: str) -> bool:
+    if len(inp) != 2:
+        return False
+    col, row = inp
+    if col not in ("A", "B", "C", "a", "b", "c"):
+        return False
+    if row not in ("1", "2", "3"):
+        return False
+    return True
 
 
 def is_game_over(curr_player: PlayerSign, board: Board) -> bool | None:
@@ -137,7 +138,7 @@ def is_game_over(curr_player: PlayerSign, board: Board) -> bool | None:
         return None
 
     if len(empty_cells) == 1:
-        # predict tie from next (final) move
+        # predict tie or win from next (final) move
         next_player = X if curr_player == O else O
         board_copy = copy.deepcopy(board)
         i, j = empty_cells[0]
@@ -155,7 +156,7 @@ def is_game_over(curr_player: PlayerSign, board: Board) -> bool | None:
 
 def main():
     # wait for user to confirm understanding of rules
-    print(rules, end="")
+    print(RULES, end="")
     _ = input()
 
     board = Board()
@@ -173,7 +174,9 @@ def main():
                 time.sleep(1.5)
                 exit()
             if not is_input_valid(move):
-                print("⚠️ Try again. Your move should look like this: B1 (letter, number)\n")
+                print(
+                    "⚠️ Try again. Your move should look like this: B1 (letter, number)\n"
+                )
                 continue
             col, row = move
             coords = (MOVE_MAP[col], MOVE_MAP[row])
@@ -205,7 +208,9 @@ def main():
         time.sleep(1)
         print(f"🙌 Niiiice. Good job {PLAYER_EMOJI_MAP[winner]}! 💪\n")
         time.sleep(1.5)
-        print(f"{PLAYER_EMOJI_MAP[loser]}, how the heck do you lose at Tic Tac Toe? 👎 \n")
+        print(
+            f"{PLAYER_EMOJI_MAP[loser]}, how the heck do you lose at Tic Tac Toe? 👎 \n"
+        )
         time.sleep(1.5)
         print("Seriously, you must be dense... 👎\n")
         time.sleep(1)
