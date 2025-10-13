@@ -26,9 +26,9 @@ class Board:
             [None, None, None],
         ]
 
-    def mark(self, turn: PlayerSign, coords: tuple[int, int]):
+    def mark(self, player: PlayerSign, coords: tuple[int, int]):
         j, i = coords
-        self.b[i][j] = turn
+        self.b[i][j] = player
 
     def is_move_available(self, coord) -> bool:
         j, i = coord
