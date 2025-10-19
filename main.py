@@ -10,7 +10,7 @@ type PlayerSign = Literal["X", "O"]
 
 type BoardEmoji = Literal["❌", "⭕", "⬜"]
 
-BOARD_EMOJI_MAP: dict[PlayerSign | None, BoardEmoji] = {
+BOARD_EMOJI: dict[PlayerSign | None, BoardEmoji] = {
     X: "❌",
     O: "⭕",
     None: "⬜",
@@ -138,7 +138,7 @@ class Board:
         ]
         for i in range(3):
             for j in range(3):
-                p[i][j] = BOARD_EMOJI_MAP[self._b[i][j]]
+                p[i][j] = BOARD_EMOJI[self._b[i][j]]
         print()
         print("  A  B  C")
         print("1", *p[0])
@@ -167,7 +167,7 @@ EXIT_CMDS = ("exit", "EXIT", "quit", "QUIT", ":q")
 
 USER_MSG: dict[Literal["EXIT"] | BoardMarkResult, str] = {
     "EXIT": "So that's how it is... Ok... I see... Bye Felicia! 👋🏼",
-    "INVALID_INPUT": "⚠️ Try again. Your move should look like this: B1 (letter, number)\n",
+    "INVALID_INPUT": "⚠️ Try again. Your move should look like this: B1 (letter, number)",
     "MOVE_UNAVAILABLE": "⚠️ Move is unavailable. Try again!",
 }
 
@@ -180,12 +180,12 @@ def print_tie_seq():
 
 
 def print_winner_seq(winner: PlayerSign, loser: PlayerSign):
-    print(f"🎉 🍻   {BOARD_EMOJI_MAP[winner]}   🥳 🍾\n")
+    print(f"🎉 🍻   {BOARD_EMOJI[winner]}   🥳 🍾\n")
     time.sleep(1)
-    print(f"🙌 Niiiice. Good job {BOARD_EMOJI_MAP[winner]} ! 💪\n")
+    print(f"🙌 Niiiice. Good job {BOARD_EMOJI[winner]} ! 💪\n")
     time.sleep(1.5)
     print(
-        f"{BOARD_EMOJI_MAP[loser]}, how the heck do you lose at Tic Tac Toe? 👎 \n"
+        f"{BOARD_EMOJI[loser]}, how the heck do you lose at Tic Tac Toe? 👎 \n"
     )
     time.sleep(1.5)
     print("Seriously, you must be dense... 👎\n")
@@ -219,17 +219,13 @@ def main():
     while True:
         # wait for a valid move to be applied
         while True:
-            move = input(f"Mark {BOARD_EMOJI_MAP[curr_player]} at: ").strip()
+            move = input(f"Mark {BOARD_EMOJI[curr_player]} at: ").strip()
             if move in EXIT_CMDS:
-                print(USER_MSG["EXIT"] + "\n")
-                time.sleep(1.5)
+                print("\n" + USER_MSG["EXIT"] + "\n")
                 exit()
             mark_result = board.mark(curr_player, move)
             match mark_result:
-                case "INVALID_INPUT":
-                    print(USER_MSG[mark_result] + "\n")
-                    continue
-                case "MOVE_UNAVAILABLE":
+                case "INVALID_INPUT" | "MOVE_UNAVAILABLE":
                     print(USER_MSG[mark_result] + "\n")
                     continue
                 case "MOVE_APPLIED":
