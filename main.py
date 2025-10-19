@@ -1,4 +1,3 @@
-from enum import Enum
 import time
 import copy
 from typing import Literal
@@ -103,14 +102,10 @@ class Board:
         #     X  O  _  <- X wins
 
         # check for tie
-        is_board_full = True
-        empty_cells: list[tuple[int, int]] = []
-        for i in range(3):
-            for j in range(3):
-                if self._b[i][j] is None:
-                    is_board_full = False
-                    empty_cells.append((i, j))
-        if is_board_full:
+        empty_cells = [
+            (i, j) for i in range(3) for j in range(3) if self._b[i][j] is None
+        ]
+        if len(empty_cells) == 0:
             return "TIE"
 
         if len(empty_cells) == 1:
@@ -131,14 +126,7 @@ class Board:
         return "GAME_IN_PROGRESS"
 
     def print(self):
-        p: list[list[None | BoardEmoji]] = [
-            [None, None, None],
-            [None, None, None],
-            [None, None, None],
-        ]
-        for i in range(3):
-            for j in range(3):
-                p[i][j] = BOARD_EMOJI[self._b[i][j]]
+        p = [[BOARD_EMOJI[self._b[i][j]] for j in range(3)] for i in range(3)]
         print()
         print("  A  B  C")
         print("1", *p[0])
