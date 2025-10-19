@@ -35,10 +35,10 @@ class Board:
             [None, None, None],
         ]
 
-    def _is_input_valid(self, inp: str) -> bool:
-        if len(inp) != 2:
+    def _is_move_valid(self, move: str) -> bool:
+        if len(move) != 2:
             return False
-        col, row = inp
+        col, row = move
         if col not in ("A", "B", "C", "a", "b", "c"):
             return False
         if row not in ("1", "2", "3"):
@@ -55,7 +55,7 @@ class Board:
     ]
 
     def mark(self, player: PlayerSign, move: str) -> MarkResult:
-        if not self._is_input_valid(move):
+        if not self._is_move_valid(move):
             return "INVALID_INPUT"
         col, row = move
         i, j = self._MOVE_MAP[row], self._MOVE_MAP[col]
