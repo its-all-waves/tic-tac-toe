@@ -1,11 +1,13 @@
 import unittest
-from main import Board, X, O, GameState
+from main import Board, X, O
 
 _ = None
 
 
 class TestIsGameOver(unittest.TestCase):
-    def assert_game_state_is(self, result: GameState, expected: GameState):
+    def assert_game_state_is(
+        self, result: Board.GameState, expected: Board.GameState
+    ):
         self.assertEqual(result, expected)
 
     def test_empty_board(self):
@@ -163,6 +165,7 @@ class TestIsGameOver(unittest.TestCase):
         # O just played, next move (X's) will result in a tie
         state = board.is_game_over(O)
         self.assert_game_state_is(state, "TIE")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -15,18 +15,6 @@ BOARD_EMOJI: dict[PlayerSign | None, BoardEmoji] = {
     None: "⬜",
 }
 
-type BoardMarkResult = Literal[
-    "INVALID_INPUT",
-    "MOVE_UNAVAILABLE",
-    "MOVE_APPLIED",
-]
-
-type GameState = Literal[
-    "GAME_IN_PROGRESS",
-    "PLAYER_IS_WINNER",
-    "TIE",
-]
-
 
 class Board:
     # fmt: off
@@ -60,7 +48,13 @@ class Board:
     def _is_move_available(self, i: int, j: int) -> bool:
         return not bool(self._b[i][j])
 
-    def mark(self, player: PlayerSign, move: str) -> BoardMarkResult:
+    type MarkResult = Literal[
+        "INVALID_INPUT",
+        "MOVE_UNAVAILABLE",
+        "MOVE_APPLIED",
+    ]
+
+    def mark(self, player: PlayerSign, move: str) -> MarkResult:
         if not self._is_input_valid(move):
             return "INVALID_INPUT"
         col, row = move
@@ -69,6 +63,12 @@ class Board:
             return "MOVE_UNAVAILABLE"
         self._b[i][j] = player
         return "MOVE_APPLIED"
+
+    type GameState = Literal[
+        "GAME_IN_PROGRESS",
+        "PLAYER_IS_WINNER",
+        "TIE",
+    ]
 
     def is_game_over(self, curr_player: PlayerSign) -> GameState:
         # check for win across rows
@@ -153,7 +153,7 @@ RULES = """
 
 EXIT_CMDS = ("exit", "EXIT", "quit", "QUIT", ":q")
 
-USER_MSG: dict[Literal["EXIT"] | BoardMarkResult, str] = {
+USER_MSG: dict[Literal["EXIT"] | Board.MarkResult, str] = {
     "EXIT": "So that's how it is... Ok... I see... Bye Felicia! 👋🏼",
     "INVALID_INPUT": "⚠️ Try again. Your move should look like this: B1 (letter, number)",
     "MOVE_UNAVAILABLE": "⚠️ Move is unavailable. Try again!",
