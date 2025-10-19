@@ -162,6 +162,14 @@ RULES = """
 
 🐟 Capisce? Press enter to play!"""
 
+EXIT_CMDS = ("exit", "EXIT", "quit", "QUIT", ":q")
+
+USER_MSG: dict[Literal["EXIT"] | BoardMarkResult, str] = {
+    "EXIT": "So that's how it is... Ok... I see... Bye Felicia! 👋🏼",
+    "INVALID_INPUT": "⚠️ Try again. Your move should look like this: B1 (letter, number)\n",
+    "MOVE_UNAVAILABLE": "⚠️ Move is unavailable. Try again!",
+}
+
 
 def main():
     # wait for user to confirm understanding of rules
@@ -178,19 +186,17 @@ def main():
         # wait for a valid move to be applied
         while True:
             move = input(f"Mark {BOARD_EMOJI_MAP[curr_player]} at: ").strip()
-            if move in ("exit", "EXIT", "quit", "QUIT", ":q"):
-                print("So that's how it is... Ok... I see... Bye Felicia! 👋🏼")
+            if move in EXIT_CMDS:
+                print(USER_MSG["EXIT"] + "\n")
                 time.sleep(1.5)
                 exit()
             mark_result = board.mark(curr_player, move)
             match mark_result:
                 case "INVALID_INPUT":
-                    print(
-                        "⚠️ Try again. Your move should look like this: B1 (letter, number)\n"
-                    )
+                    print(USER_MSG[mark_result] + "\n")
                     continue
                 case "MOVE_UNAVAILABLE":
-                    print("⚠️ Move is unavailable. Try again!\n")
+                    print(USER_MSG["MOVE_UNAVAILABLE"] + "\n")
                     continue
                 case "MOVE_APPLIED":
                     break
