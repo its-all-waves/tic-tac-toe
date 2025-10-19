@@ -17,10 +17,10 @@ BOARD_EMOJI_MAP: dict[PlayerSign | None, BoardEmoji] = {
 
 
 class Board:
-    b: list[list[None | PlayerSign]]
+    _b: list[list[None | PlayerSign]]
 
     def __init__(self):
-        self.b = [
+        self._b = [
             [None, None, None],
             [None, None, None],
             [None, None, None],
@@ -28,11 +28,75 @@ class Board:
 
     def mark(self, player: PlayerSign, coords: tuple[int, int]):
         j, i = coords
-        self.b[i][j] = player
+        self._b[i][j] = player
 
     def is_move_available(self, coord) -> bool:
         j, i = coord
-        return not bool(self.b[i][j])
+        return not bool(self._b[i][j])
+
+    def is_game_over(self, curr_player: PlayerSign) -> bool | None:
+        """
+        Returns:
+            - `True` if `curr_player` won the game
+            - `False` if the game is not over
+            - `None` if it's a tie
+        """
+        # check for win across rows
+        for row in self._b:
+            if row[0] == row[1] == row[2] == curr_player:
+                return True
+
+        # check for win across cols
+        for j in range(3):
+            if self._b[0][j] == self._b[1][j] == self._b[2][j] == curr_player:
+                return True
+
+        # check for win across diags
+        if (
+            self._b[0][0] == self._b[1][1] == self._b[2][2] == curr_player
+            or self._b[2][0] == self._b[1][1] == self._b[0][2] == curr_player
+        ):
+            return True
+
+        # It's possible to detect a tie or win before the last move is made.
+        # e.g. tie - X's turn, X cannot win, only possible move results in a draw
+        #
+        #     X  O  O
+        #     O  _  X
+        #     X  X  O
+        #
+        # e.g. win - X's turn, only possible move is a win
+        #
+        #     X  O  O
+        #     O  X  X
+        #     X  O  _  <- X wins
+
+        # check for tie
+        is_board_full = True
+        empty_cells: list[tuple[int, int]] = []
+        for i in range(3):
+            for j in range(3):
+                if self._b[i][j] is None:
+                    is_board_full = False
+                    empty_cells.append((i, j))
+        if is_board_full:
+            return None
+
+        if len(empty_cells) == 1:
+            # predict tie or win from next (final) move
+            next_player = X if curr_player == O else O
+            board_copy = copy.deepcopy(self)
+            i, j = empty_cells[0]
+            board_copy._b[i][j] = next_player
+            will_next_player_win = board_copy.is_game_over(next_player)
+            if will_next_player_win:
+                # let them make the winning move -- more fun/satisfying
+                return False
+            if will_next_player_win is None:
+                # next move will fill the board and not win the game, thus it's a tie
+                return None
+
+        return False
 
     def print(self):
         p: list[list[None | BoardEmoji]] = [
@@ -42,7 +106,7 @@ class Board:
         ]
         for i in range(3):
             for j in range(3):
-                p[i][j] = BOARD_EMOJI_MAP[self.b[i][j]]
+                p[i][j] = BOARD_EMOJI_MAP[self._b[i][j]]
         print()
         print("  A  B  C")
         print("1", *p[0])
@@ -89,71 +153,6 @@ def is_input_valid(inp: str) -> bool:
     return True
 
 
-def is_game_over(curr_player: PlayerSign, board: Board) -> bool | None:
-    """
-    Returns:
-        - `True` if `curr_player` won the game
-        - `False` if the game is not over
-        - `None` if it's a tie
-    """
-    # check for win across rows
-    for row in board.b:
-        if row[0] == row[1] == row[2] == curr_player:
-            return True
-
-    # check for win across cols
-    for j in range(3):
-        if board.b[0][j] == board.b[1][j] == board.b[2][j] == curr_player:
-            return True
-
-    # check for win across diags
-    if (
-        board.b[0][0] == board.b[1][1] == board.b[2][2] == curr_player
-        or board.b[2][0] == board.b[1][1] == board.b[0][2] == curr_player
-    ):
-        return True
-
-    # It's possible to detect a tie or win before the last move is made.
-    # e.g. tie - X's turn, X cannot win, only possible move results in a draw
-    #
-    #     X  O  O
-    #     O  _  X
-    #     X  X  O
-    #
-    # e.g. win - X's turn, only possible move is a win
-    #
-    #     X  O  O
-    #     O  X  X
-    #     X  O  _  <- X wins
-
-    # check for tie
-    is_board_full = True
-    empty_cells: list[tuple[int, int]] = []
-    for i in range(3):
-        for j in range(3):
-            if board.b[i][j] is None:
-                is_board_full = False
-                empty_cells.append((i, j))
-    if is_board_full:
-        return None
-
-    if len(empty_cells) == 1:
-        # predict tie or win from next (final) move
-        next_player = X if curr_player == O else O
-        board_copy = copy.deepcopy(board)
-        i, j = empty_cells[0]
-        board_copy.b[i][j] = next_player
-        will_next_player_win = is_game_over(next_player, board_copy)
-        if will_next_player_win:
-            # let them make the winning move -- more fun/satisfying
-            return False
-        if will_next_player_win is None:
-            # next move will fill the board and not win the game, thus it's a tie
-            return None
-
-    return False
-
-
 def main():
     # wait for user to confirm understanding of rules
     print(RULES, end="")
@@ -188,7 +187,7 @@ def main():
 
         board.print()
 
-        curr_player_won = is_game_over(curr_player, board)
+        curr_player_won = board.is_game_over(curr_player)
         if curr_player_won:
             winner = curr_player
             break
