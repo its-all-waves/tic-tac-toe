@@ -9,7 +9,7 @@ type PlayerSign = Literal["X", "O"]
 
 type BoardEmoji = Literal["❌", "⭕", "⬜"]
 
-PLAYER_EMOJI_MAP: dict[PlayerSign | None, BoardEmoji] = {
+BOARD_EMOJI_MAP: dict[PlayerSign | None, BoardEmoji] = {
     X: "❌",
     O: "⭕",
     None: "⬜",
@@ -42,7 +42,7 @@ class Board:
         ]
         for i in range(3):
             for j in range(3):
-                p[i][j] = PLAYER_EMOJI_MAP[self.b[i][j]]
+                p[i][j] = BOARD_EMOJI_MAP[self.b[i][j]]
         print()
         print("  A  B  C")
         print("1", *p[0])
@@ -168,7 +168,7 @@ def main():
     while True:
         # wait for a valid move to be applied
         while True:
-            move = input(f"Mark {PLAYER_EMOJI_MAP[curr_player]} at: ").strip()
+            move = input(f"Mark {BOARD_EMOJI_MAP[curr_player]} at: ").strip()
             if move in ("exit", "EXIT", "quit", "QUIT", ":q"):
                 print("So that's how it is... Ok... I see... Bye Felicia! 👋🏼")
                 time.sleep(1.5)
@@ -204,12 +204,12 @@ def main():
 
     if winner:
         loser = X if winner == O else O
-        print(f"🎉 🍻   {PLAYER_EMOJI_MAP[winner]}   🥳 🍾\n")
+        print(f"🎉 🍻   {BOARD_EMOJI_MAP[winner]}   🥳 🍾\n")
         time.sleep(1)
-        print(f"🙌 Niiiice. Good job {PLAYER_EMOJI_MAP[winner]}! 💪\n")
+        print(f"🙌 Niiiice. Good job {BOARD_EMOJI_MAP[winner]}! 💪\n")
         time.sleep(1.5)
         print(
-            f"{PLAYER_EMOJI_MAP[loser]}, how the heck do you lose at Tic Tac Toe? 👎 \n"
+            f"{BOARD_EMOJI_MAP[loser]}, how the heck do you lose at Tic Tac Toe? 👎 \n"
         )
         time.sleep(1.5)
         print("Seriously, you must be dense... 👎\n")
