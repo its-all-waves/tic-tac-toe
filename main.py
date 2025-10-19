@@ -172,13 +172,6 @@ USER_MSG: dict[Literal["EXIT"] | BoardMarkResult, str] = {
 }
 
 
-def print_game_over_seq():
-    print("GAME OVER!\n")
-    time.sleep(1.5)
-    print("🥁 And the winner is... 🥁\n")
-    time.sleep(1.5)
-
-
 def print_tie_seq():
     print("No one. No won won. Wait... No one... won. Whatever.\n")
     time.sleep(2)
@@ -199,6 +192,17 @@ def print_winner_seq(winner: PlayerSign, loser: PlayerSign):
     time.sleep(1)
     print("Thanks for playing! Goodbye! 👋🏼\n")
     time.sleep(1)
+
+
+def print_game_over_seq(winner: None | PlayerSign):
+    print("GAME OVER!\n")
+    time.sleep(1.5)
+    print("🥁 And the winner is... 🥁\n")
+    time.sleep(1.5)
+    if winner:
+        print_winner_seq(winner, loser=X if winner == O else O)
+        return
+    print_tie_seq()
 
 
 def main():
@@ -244,11 +248,7 @@ def main():
             case "TIE":
                 break
 
-    print_game_over_seq()
-    if winner:
-        print_winner_seq(winner, loser=X if winner == O else O)
-        return
-    print_tie_seq()
+    print_game_over_seq(winner)
 
 
 if __name__ == "__main__":
