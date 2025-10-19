@@ -171,6 +171,35 @@ USER_MSG: dict[Literal["EXIT"] | BoardMarkResult, str] = {
 }
 
 
+def print_game_over_seq():
+    print("GAME OVER!\n")
+    time.sleep(1.5)
+    print("🥁 And the winner is... 🥁\n")
+    time.sleep(1.5)
+
+
+def print_tie_seq():
+    print("No one. No won won. Wait... No one... won. Whatever.\n")
+    time.sleep(2)
+    print("...so lame. Bye! 👋🏼\n")
+    time.sleep(2)
+
+
+def print_winner_seq(winner: PlayerSign, loser: PlayerSign):
+    print(f"🎉 🍻   {BOARD_EMOJI_MAP[winner]}   🥳 🍾\n")
+    time.sleep(1)
+    print(f"🙌 Niiiice. Good job {BOARD_EMOJI_MAP[winner]} ! 💪\n")
+    time.sleep(1.5)
+    print(
+        f"{BOARD_EMOJI_MAP[loser]}, how the heck do you lose at Tic Tac Toe? 👎 \n"
+    )
+    time.sleep(1.5)
+    print("Seriously, you must be dense... 👎\n")
+    time.sleep(1)
+    print("Thanks for playing! Goodbye! 👋🏼\n")
+    time.sleep(1)
+
+
 def main():
     # wait for user to confirm understanding of rules
     print(RULES, end="")
@@ -196,7 +225,7 @@ def main():
                     print(USER_MSG[mark_result] + "\n")
                     continue
                 case "MOVE_UNAVAILABLE":
-                    print(USER_MSG["MOVE_UNAVAILABLE"] + "\n")
+                    print(USER_MSG[mark_result] + "\n")
                     continue
                 case "MOVE_APPLIED":
                     break
@@ -212,31 +241,11 @@ def main():
 
         curr_player = X if curr_player == O else O
 
-    print("GAME OVER!\n")
-    time.sleep(1.5)
-    print("🥁 And the winner is... 🥁\n")
-    time.sleep(1.5)
-
+    print_game_over_seq()
     if winner:
-        loser = X if winner == O else O
-        print(f"🎉 🍻   {BOARD_EMOJI_MAP[winner]}   🥳 🍾\n")
-        time.sleep(1)
-        print(f"🙌 Niiiice. Good job {BOARD_EMOJI_MAP[winner]}! 💪\n")
-        time.sleep(1.5)
-        print(
-            f"{BOARD_EMOJI_MAP[loser]}, how the heck do you lose at Tic Tac Toe? 👎 \n"
-        )
-        time.sleep(1.5)
-        print("Seriously, you must be dense... 👎\n")
-        time.sleep(1)
-        print("Thanks for playing! Goodbye! 👋🏼\n")
-        time.sleep(1)
+        print_winner_seq(winner, loser=X if winner == O else O)
         return
-
-    print("No one. No won won. Wait... No one... won. Whatever.\n")
-    time.sleep(2)
-    print("...so lame. Bye! 👋🏼\n")
-    time.sleep(2)
+    print_tie_seq()
 
 
 if __name__ == "__main__":
