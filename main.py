@@ -1,3 +1,4 @@
+from enum import Enum
 import time
 import copy
 from typing import Literal
@@ -15,8 +16,23 @@ BOARD_EMOJI_MAP: dict[PlayerSign | None, BoardEmoji] = {
     None: "⬜",
 }
 
+type BoardMarkResult = Literal[
+    "INVALID_INPUT",
+    "MOVE_UNAVAILABLE",
+    "MOVE_APPLIED",
+]
+
 
 class Board:
+    # fmt: off
+    # map user-entered coord to board index
+    _MOVE_MAP: dict[str, int] = {
+        "A": 0, "B": 1, "C": 2,
+        "a": 0, "b": 1, "c": 2,
+        "1": 0, "2": 1, "3": 2,
+    }
+    # fmt: on
+
     _b: list[list[None | PlayerSign]]
 
     def __init__(self):
@@ -26,13 +42,28 @@ class Board:
             [None, None, None],
         ]
 
-    def mark(self, player: PlayerSign, coords: tuple[int, int]):
-        j, i = coords
-        self._b[i][j] = player
+    def _is_input_valid(self, inp: str) -> bool:
+        if len(inp) != 2:
+            return False
+        col, row = inp
+        if col not in ("A", "B", "C", "a", "b", "c"):
+            return False
+        if row not in ("1", "2", "3"):
+            return False
+        return True
 
-    def is_move_available(self, coord) -> bool:
-        j, i = coord
+    def _is_move_available(self, i: int, j: int) -> bool:
         return not bool(self._b[i][j])
+
+    def mark(self, player: PlayerSign, move: str) -> BoardMarkResult:
+        if not self._is_input_valid(move):
+            return "INVALID_INPUT"
+        col, row = move
+        i, j = self._MOVE_MAP[row], self._MOVE_MAP[col]
+        if not self._is_move_available(i, j):
+            return "MOVE_UNAVAILABLE"
+        self._b[i][j] = player
+        return "MOVE_APPLIED"
 
     def is_game_over(self, curr_player: PlayerSign) -> bool | None:
         """
@@ -132,27 +163,6 @@ RULES = """
 🐟 Capisce? Press enter to play!"""
 
 
-# fmt: off
-# map user-entered coord to board index
-MOVE_MAP: dict[str, int] = {
-    "A": 0, "B": 1, "C": 2,
-    "a": 0, "b": 1, "c": 2,
-    "1": 0, "2": 1, "3": 2,
-}
-# fmt: on
-
-
-def is_input_valid(inp: str) -> bool:
-    if len(inp) != 2:
-        return False
-    col, row = inp
-    if col not in ("A", "B", "C", "a", "b", "c"):
-        return False
-    if row not in ("1", "2", "3"):
-        return False
-    return True
-
-
 def main():
     # wait for user to confirm understanding of rules
     print(RULES, end="")
@@ -172,18 +182,18 @@ def main():
                 print("So that's how it is... Ok... I see... Bye Felicia! 👋🏼")
                 time.sleep(1.5)
                 exit()
-            if not is_input_valid(move):
-                print(
-                    "⚠️ Try again. Your move should look like this: B1 (letter, number)\n"
-                )
-                continue
-            col, row = move
-            coords = (MOVE_MAP[col], MOVE_MAP[row])
-            if not board.is_move_available(coords):
-                print("⚠️ Move is unavailable. Try again!\n")
-                continue
-            board.mark(curr_player, coords)
-            break
+            mark_result = board.mark(curr_player, move)
+            match mark_result:
+                case "INVALID_INPUT":
+                    print(
+                        "⚠️ Try again. Your move should look like this: B1 (letter, number)\n"
+                    )
+                    continue
+                case "MOVE_UNAVAILABLE":
+                    print("⚠️ Move is unavailable. Try again!\n")
+                    continue
+                case "MOVE_APPLIED":
+                    break
 
         board.print()
 
