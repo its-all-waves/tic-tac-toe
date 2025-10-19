@@ -22,6 +22,12 @@ type BoardMarkResult = Literal[
     "MOVE_APPLIED",
 ]
 
+type GameState = Literal[
+    "GAME_IN_PROGRESS",
+    "PLAYER_IS_WINNER",
+    "TIE",
+]
+
 
 class Board:
     # fmt: off
@@ -65,29 +71,23 @@ class Board:
         self._b[i][j] = player
         return "MOVE_APPLIED"
 
-    def is_game_over(self, curr_player: PlayerSign) -> bool | None:
-        """
-        Returns:
-            - `True` if `curr_player` won the game
-            - `False` if the game is not over
-            - `None` if it's a tie
-        """
+    def is_game_over(self, curr_player: PlayerSign) -> GameState:
         # check for win across rows
         for row in self._b:
             if row[0] == row[1] == row[2] == curr_player:
-                return True
+                return "PLAYER_IS_WINNER"
 
         # check for win across cols
         for j in range(3):
             if self._b[0][j] == self._b[1][j] == self._b[2][j] == curr_player:
-                return True
+                return "PLAYER_IS_WINNER"
 
         # check for win across diags
         if (
             self._b[0][0] == self._b[1][1] == self._b[2][2] == curr_player
             or self._b[2][0] == self._b[1][1] == self._b[0][2] == curr_player
         ):
-            return True
+            return "PLAYER_IS_WINNER"
 
         # It's possible to detect a tie or win before the last move is made.
         # e.g. tie - X's turn, X cannot win, only possible move results in a draw
@@ -111,7 +111,7 @@ class Board:
                     is_board_full = False
                     empty_cells.append((i, j))
         if is_board_full:
-            return None
+            return "TIE"
 
         if len(empty_cells) == 1:
             # predict tie or win from next (final) move
@@ -119,15 +119,16 @@ class Board:
             board_copy = copy.deepcopy(self)
             i, j = empty_cells[0]
             board_copy._b[i][j] = next_player
-            will_next_player_win = board_copy.is_game_over(next_player)
-            if will_next_player_win:
-                # let them make the winning move -- more fun/satisfying
-                return False
-            if will_next_player_win is None:
-                # next move will fill the board and not win the game, thus it's a tie
-                return None
+            state_after_next_move = board_copy.is_game_over(next_player)
+            match state_after_next_move:
+                case "PLAYER_IS_WINNER":
+                    # let them make the winning move -- more fun/satisfying
+                    return "GAME_IN_PROGRESS"
+                case "TIE":
+                    # next move will fill the board and not win the game, thus it's a tie
+                    return "TIE"
 
-        return False
+        return "GAME_IN_PROGRESS"
 
     def print(self):
         p: list[list[None | BoardEmoji]] = [
@@ -232,14 +233,16 @@ def main():
 
         board.print()
 
-        curr_player_won = board.is_game_over(curr_player)
-        if curr_player_won:
-            winner = curr_player
-            break
-        if curr_player_won is None:
-            break
-
-        curr_player = X if curr_player == O else O
+        state = board.is_game_over(curr_player)
+        match state:
+            case "GAME_IN_PROGRESS":
+                curr_player = X if curr_player == O else O
+                continue
+            case "PLAYER_IS_WINNER":
+                winner = curr_player
+                break
+            case "TIE":
+                break
 
     print_game_over_seq()
     if winner:

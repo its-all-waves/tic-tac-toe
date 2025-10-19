@@ -1,10 +1,13 @@
 import unittest
-from main import Board, X, O
+from main import Board, X, O, GameState
 
 _ = None
 
 
 class TestIsGameOver(unittest.TestCase):
+    def assert_game_state_is(self, result: GameState, expected: GameState):
+        self.assertEqual(result, expected)
+
     def test_empty_board(self):
         board = Board()
         board._b = [
@@ -13,8 +16,8 @@ class TestIsGameOver(unittest.TestCase):
             [_, _, _],
         ]
         # X goes 1st
-        game_is_over = board.is_game_over(X)
-        self.assertFalse(game_is_over)
+        state = board.is_game_over(X)
+        self.assert_game_state_is(state, "GAME_IN_PROGRESS")
 
     def test_game_not_over(self):
         board = Board()
@@ -23,8 +26,8 @@ class TestIsGameOver(unittest.TestCase):
             [X, O, X],
             [X, _, X],
         ]
-        x_won = board.is_game_over(X)
-        self.assertFalse(x_won)
+        state = board.is_game_over(X)
+        self.assert_game_state_is(state, "GAME_IN_PROGRESS")
 
         board = Board()
         board._b = [
@@ -32,8 +35,8 @@ class TestIsGameOver(unittest.TestCase):
             [_, X, O],
             [X, O, _],
         ]
-        o_won = board.is_game_over(O)
-        self.assertFalse(o_won)
+        state = board.is_game_over(O)
+        self.assert_game_state_is(state, "GAME_IN_PROGRESS")
 
     def test_X_or_O_wins(self):
         board = Board()
@@ -42,8 +45,8 @@ class TestIsGameOver(unittest.TestCase):
             [_, O, O],
             [_, _, _],
         ]
-        x_won = board.is_game_over(X)
-        self.assertTrue(x_won)
+        state = board.is_game_over(X)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
         board = Board()
         board._b = [
@@ -51,8 +54,8 @@ class TestIsGameOver(unittest.TestCase):
             [X, O, X],
             [X, O, _],
         ]
-        o_won = board.is_game_over(O)
-        self.assertTrue(o_won)
+        state = board.is_game_over(O)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
     def test_detects_win_in_rows(self):
         board = Board()
@@ -61,8 +64,8 @@ class TestIsGameOver(unittest.TestCase):
             [X, O, _],
             [_, O, O],
         ]
-        x_won = board.is_game_over(X)
-        self.assertTrue(x_won)
+        state = board.is_game_over(X)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
         board = Board()
         board._b = [
@@ -70,8 +73,8 @@ class TestIsGameOver(unittest.TestCase):
             [O, O, O],
             [X, _, X],
         ]
-        o_won = board.is_game_over(O)
-        self.assertTrue(o_won)
+        state = board.is_game_over(O)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
         board = Board()
         board._b = [
@@ -80,8 +83,8 @@ class TestIsGameOver(unittest.TestCase):
             [O, O, O],
         ]
         # O just played
-        o_won = board.is_game_over(O)
-        self.assertTrue(o_won)
+        state = board.is_game_over(O)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
     def test_detects_win_in_cols(self):
         board = Board()
@@ -90,8 +93,8 @@ class TestIsGameOver(unittest.TestCase):
             [O, X, X],
             [O, _, _],
         ]
-        o_won = board.is_game_over(O)
-        self.assertTrue(o_won)
+        state = board.is_game_over(O)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
         board = Board()
         board._b = [
@@ -99,8 +102,8 @@ class TestIsGameOver(unittest.TestCase):
             [_, X, _],
             [_, X, O],
         ]
-        x_won = board.is_game_over(X)
-        self.assertTrue(x_won)
+        state = board.is_game_over(X)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
         board = Board()
         board._b = [
@@ -108,8 +111,8 @@ class TestIsGameOver(unittest.TestCase):
             [X, X, O],
             [_, X, O],
         ]
-        o_won = board.is_game_over(O)
-        self.assertTrue(o_won)
+        state = board.is_game_over(O)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
     def test_detects_win_in_diags(self):
         board = Board()
@@ -118,8 +121,8 @@ class TestIsGameOver(unittest.TestCase):
             [O, X, O],
             [X, _, _],
         ]
-        x_won = board.is_game_over(X)
-        self.assertTrue(x_won)
+        state = board.is_game_over(X)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
         board = Board()
         board._b = [
@@ -127,8 +130,8 @@ class TestIsGameOver(unittest.TestCase):
             [_, O, X],
             [X, _, O],
         ]
-        o_won = board.is_game_over(O)
-        self.assertTrue(o_won)
+        state = board.is_game_over(O)
+        self.assert_game_state_is(state, "PLAYER_IS_WINNER")
 
     def test_tied_board_full(self):
         board = Board()
@@ -137,8 +140,8 @@ class TestIsGameOver(unittest.TestCase):
             [X, O, X],
             [X, O, X],
         ]
-        x_won = board.is_game_over(X)
-        self.assertIsNone(x_won)
+        state = board.is_game_over(X)
+        self.assert_game_state_is(state, "TIE")
 
     def test_tied_board_not_full(self):
         board = Board()
@@ -148,8 +151,8 @@ class TestIsGameOver(unittest.TestCase):
             [X, X, O],
         ]
         # O just played, next move (X's) will result in a tie
-        o_won = board.is_game_over(O)
-        self.assertIsNone(o_won)
+        state = board.is_game_over(O)
+        self.assert_game_state_is(state, "TIE")
 
         board = Board()
         board._b = [
@@ -158,8 +161,8 @@ class TestIsGameOver(unittest.TestCase):
             [X, O, X],
         ]
         # O just played, next move (X's) will result in a tie
-        o_won = board.is_game_over(O)
-        self.assertIsNone(o_won)
+        state = board.is_game_over(O)
+        self.assert_game_state_is(state, "TIE")
 
 if __name__ == "__main__":
     unittest.main()
